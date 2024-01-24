@@ -16,7 +16,6 @@ from sklearn.model_selection import train_test_split
 
 
 os.environ['WANDB_PROJECT'] = 'project3'
-os.environ["WANDB_LOG_MODEL"] = "checkpoint"
 
 class BERTDataset(Dataset):
     def __init__(self, data, tokenizer):
@@ -80,7 +79,7 @@ def train():
         do_eval=True,
         do_predict=True,
         logging_strategy='steps',
-        evaluation_strategy='no',
+        evaluation_strategy='steps',
         save_strategy='steps',
         logging_steps=100,
         eval_steps=100,
@@ -113,6 +112,7 @@ def train():
     )
 
     trainer.train()
+    model.save_pretrained(f'./best_model/baseline')
 
 
 

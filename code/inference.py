@@ -31,7 +31,7 @@ def eval():
     OUTPUT_DIR = os.path.join(BASE_DIR, './output')
 
     model_name = 'klue/bert-base'
-    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=7).to(DEVICE)
+    model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/baseline', num_labels=7).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     dataset_test = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'))
