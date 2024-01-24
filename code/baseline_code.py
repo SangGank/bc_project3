@@ -13,9 +13,16 @@ from transformers import DataCollatorWithPadding
 from transformers import TrainingArguments, Trainer
 
 from sklearn.model_selection import train_test_split
+import configparser
 
 
 os.environ['WANDB_PROJECT'] = 'project3'
+
+config = configparser.ConfigParser()
+config.read('./code/config.ini')
+
+
+
 
 class BERTDataset(Dataset):
     def __init__(self, data, tokenizer):
@@ -46,6 +53,8 @@ def train():
     torch.manual_seed(SEED)
     torch.cuda.manual_seed(SEED)
     torch.cuda.manual_seed_all(SEED)
+    
+    filename = config.get('name','name')
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -57,7 +66,8 @@ def train():
     model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=7).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    data = pd.read_csv(os.path.join(DATA_DIR, 'train.csv'))
+    train = config.get("data","train")
+    data = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
     dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
 
     data_train = BERTDataset(dataset_train, tokenizer)
@@ -99,7 +109,7 @@ def train():
         greater_is_better=True,
         seed=SEED,
         report_to="wandb",
-        run_name='baseline',
+        run_name=filename,
     )
 
     trainer = Trainer(
@@ -112,7 +122,7 @@ def train():
     )
 
     trainer.train()
-    model.save_pretrained(f'./best_model/baseline')
+    model.save_pretrained(f'./best_model/{filename}')
 
 
 

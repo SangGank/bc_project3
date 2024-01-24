@@ -15,11 +15,16 @@ from transformers import TrainingArguments, Trainer
 from sklearn.model_selection import train_test_split
 
 from baseline_code import BERTDataset
+
 import configparser
 
 
 config = configparser.ConfigParser()
 config.read('./code/config.ini')
+for section in config.sections():
+    print(f'Section: {section}')
+    for key, value in config.items(section):
+        print(f'  {key} = {value}')
 
 
 def eval():
@@ -31,29 +36,33 @@ def eval():
     torch.cuda.manual_seed_all(SEED)
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    
-    filename=config.get('name','name')
 
     BASE_DIR = os.getcwd()
     DATA_DIR = os.path.join(BASE_DIR, './data')
     OUTPUT_DIR = os.path.join(BASE_DIR, './output')
+    
+    filename=config.get('name','name')
+    
 
     model_name = 'klue/bert-base'
     model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/{filename}', num_labels=7).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    train = config.get("data","train")
+    data = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
+    dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
 
-    dataset_test = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'))
     model.eval()
     preds = []
-    for idx, sample in tqdm(dataset_test.iterrows()):
+    for idx, sample in tqdm(dataset_valid.iterrows()):
         inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
         with torch.no_grad():
             logits = model(**inputs).logits
             pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
             preds.extend(pred)
     
-    dataset_test['target'] = preds
-    dataset_test.to_csv(os.path.join(BASE_DIR, f'output_{filename}.csv'), index=False)
+    dataset_valid['pred_target'] = preds
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev_{filename}.csv'), index=False)
     
     
     
