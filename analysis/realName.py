@@ -5,6 +5,6 @@ import tqdm
 import time
 from korean_romanizer.pronouncer import Pronouncer
 
-
-text = '이 세상엔 값진게 너무 많다.'
-print(Pronouncer(text).pronounced)
+from hanspell import spell_checker
+x = spell_checker.check('나태주 너를 먼저 생가칸다면 미투 나오 리 럽껟쬬')
+print(x.as_dict()['checked'] ) # dict로 출력

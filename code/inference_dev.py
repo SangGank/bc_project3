@@ -50,6 +50,7 @@ def eval():
     
     train = config.get("data","train")
     dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./validation/dev.csv'))
+    # dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'../dev_g2p.csv'))
 
     model.eval()
     preds = []
