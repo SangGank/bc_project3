@@ -196,6 +196,6 @@ bumm/
 *.csv
 a.py
 output/
-addDataJson/
+addDateJson/
 *.json
 # End of https://www.toptal.com/developers/gitignore/api/linux,python
