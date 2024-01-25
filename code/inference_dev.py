@@ -49,8 +49,7 @@ def eval():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     
     train = config.get("data","train")
-    data = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
-    dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
+    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./validation/dev.csv'))
 
     model.eval()
     preds = []
@@ -62,7 +61,7 @@ def eval():
             preds.extend(pred)
     
     dataset_valid['pred_target'] = preds
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev_{filename}.csv'), index=False)
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{filename}.csv'), index=False)
     
     
     

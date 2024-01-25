@@ -14,6 +14,7 @@ from transformers import TrainingArguments, Trainer
 
 from sklearn.model_selection import train_test_split
 import configparser
+import wandb
 
 
 os.environ['WANDB_PROJECT'] = 'project3'
@@ -69,9 +70,9 @@ def train():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     train = config.get("data","train")
-    data = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
-    dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
-
+    dataset_train = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
+    
+    dataset_valid=pd.read_csv('./data/validation/dev.csv')
     data_train = BERTDataset(dataset_train, tokenizer)
     data_valid = BERTDataset(dataset_valid, tokenizer)
 
@@ -131,6 +132,16 @@ def train():
 def main():
     train()
     # eval()
+    sweep_config = {
+        "name": 'num2_sweep',
+        "method": "gree",
+        "metric": {"goal": "maximize", "name": "micro f1 score"},
+        "parameters": {
+            "num_train_epochs": {"min": 3, "max": 5},
+            "learning_rate": {"min": 1e-5, "max": 1e-4},
+            "per_device_train_batch_size": {"values":[8, 16, 32]}
+        }
+    }
 
 if __name__ == '__main__':
     main()
