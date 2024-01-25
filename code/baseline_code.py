@@ -54,7 +54,8 @@ def train():
     torch.cuda.manual_seed(SEED)
     torch.cuda.manual_seed_all(SEED)
     
-    filename = config.get('name','name')
+    filename = config.get('model','name')
+    batch = config.get('model','batch')
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -101,8 +102,8 @@ def train():
         adam_epsilon=1e-08,
         weight_decay=0.01,
         lr_scheduler_type='linear',
-        per_device_train_batch_size=4,
-        per_device_eval_batch_size=4,
+        per_device_train_batch_size=batch,
+        per_device_eval_batch_size=batch,
         num_train_epochs=2,
         load_best_model_at_end=False,
         metric_for_best_model='eval_f1',

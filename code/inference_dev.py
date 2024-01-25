@@ -41,7 +41,7 @@ def eval():
     DATA_DIR = os.path.join(BASE_DIR, './data')
     OUTPUT_DIR = os.path.join(BASE_DIR, './output')
     
-    filename=config.get('name','name')
+    filename=config.get('model','name')
     
 
     model_name = 'klue/bert-base'
