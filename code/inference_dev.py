@@ -65,7 +65,7 @@ def eval():
     
     dataset_valid['pred_target'] = preds
     # dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{filename}.csv'), index=False)
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_AI.csv'), index=False)
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_AI_limit.csv'), index=False)
     
     
     
