@@ -124,7 +124,7 @@ def train():
     )
 
     trainer.train()
-    model.save_pretrained(f'./best_model/{filename}')
+    model.save_pretrained(f'./best_model/{filename}_regular')
 
 
 
