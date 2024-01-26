@@ -49,7 +49,9 @@ def eval():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     
     train = config.get("data","train")
-    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./validation/dev.csv'))
+    # dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./validation/dev.csv'))
+    
+    dataset_valid=pd.read_csv('./addDateJson/total_remove_punc.csv')
     # dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'../dev_g2p.csv'))
 
     model.eval()
@@ -62,7 +64,8 @@ def eval():
             preds.extend(pred)
     
     dataset_valid['pred_target'] = preds
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{filename}.csv'), index=False)
+    # dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{filename}.csv'), index=False)
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_AI.csv'), index=False)
     
     
     

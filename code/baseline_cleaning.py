@@ -69,8 +69,8 @@ def train(num):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     train = config.get("data","train")
-    data = pd.read_csv(os.path.join(DATA_DIR, f'./train/Total_train.csv'))
-    dataset_valid = data.iloc[num::4]
+    data = pd.read_csv(os.path.join(DATA_DIR, f'./train/change_g2p.csv'))
+    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train/Total_train.csv')).iloc[num::4]
     dataset_train = data.drop(dataset_valid.index)
     # dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
 
@@ -96,7 +96,7 @@ def train(num):
         evaluation_strategy='steps',
         save_strategy='steps',
         logging_steps=100,
-        eval_steps=eval_step,
+        eval_steps=200,
         save_steps=100,
         save_total_limit=2,
         learning_rate= 2e-05,
@@ -137,14 +137,41 @@ def train(num):
             preds.extend(pred)
     
     dataset_valid['pred_target'] = preds
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{num}.csv'), index=False)
-    # model.save_pretrained(f'./best_model/{filename}')
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_p2g_{num}.csv'), index=False)
+    model.save_pretrained(f'./best_model/p2g_{num}')
+    
+def eval(num):
+    
+    DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
+    BASE_DIR = os.getcwd()
+    DATA_DIR = os.path.join(BASE_DIR, './data')
+   
+    model_name = 'klue/bert-base'
+    
+    model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/p2g_{num}', num_labels=7).to(DEVICE)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train/change_g2p.csv')).iloc[num::4]
+    
+    model.eval()
+    preds = []
+    for idx, sample in tqdm(dataset_valid.iterrows()):
+        inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
+        with torch.no_grad():
+            logits = model(**inputs).logits
+            pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
+            preds.extend(pred)
+    
+    dataset_valid['pred_target'] = preds
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_g2p_{num}_change.csv',index=False), index=False)
+    
 
 
 def main():
     for i in range(4):
-        train(i)
+        eval(i)
+        # train(i)
 
 if __name__ == '__main__':
     main()
