@@ -69,7 +69,7 @@ def train(num):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     train = config.get("data","train")
-    data = pd.read_csv(os.path.join(DATA_DIR, f'./train_remove.csv'))
+    data = pd.read_csv(os.path.join(DATA_DIR, f'./train_p2g.csv'))
     dataset_valid = data.iloc[num::4]
     dataset_train = data.drop(dataset_valid.index)
     # dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
