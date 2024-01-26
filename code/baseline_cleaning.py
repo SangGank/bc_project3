@@ -69,8 +69,8 @@ def train(num):
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     train = config.get("data","train")
-    data = pd.read_csv(os.path.join(DATA_DIR, f'./train/change_g2p.csv'))
-    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train/Total_train.csv')).iloc[num::4]
+    data = pd.read_csv(os.path.join(DATA_DIR, f'./train_remove.csv'))
+    dataset_valid = data.iloc[num::4]
     dataset_train = data.drop(dataset_valid.index)
     # dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
 
@@ -137,41 +137,41 @@ def train(num):
             preds.extend(pred)
     
     dataset_valid['pred_target'] = preds
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_p2g_{num}.csv'), index=False)
-    model.save_pretrained(f'./best_model/p2g_{num}')
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_Jiyoung_{num}.csv'), index=False)
+    model.save_pretrained(f'./best_model/Jiyoung_{num}')
     
-def eval(num):
+# def eval(num):
     
-    DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+#     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    BASE_DIR = os.getcwd()
-    DATA_DIR = os.path.join(BASE_DIR, './data')
+#     BASE_DIR = os.getcwd()
+#     DATA_DIR = os.path.join(BASE_DIR, './data')
    
-    model_name = 'klue/bert-base'
+#     model_name = 'klue/bert-base'
     
-    model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/p2g_{num}', num_labels=7).to(DEVICE)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+#     model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/p2g_{num}', num_labels=7).to(DEVICE)
+#     tokenizer = AutoTokenizer.from_pretrained(model_name)
     
-    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train/change_g2p.csv')).iloc[num::4]
+#     dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train/change_g2p.csv')).iloc[num::4]
     
-    model.eval()
-    preds = []
-    for idx, sample in tqdm(dataset_valid.iterrows()):
-        inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
-        with torch.no_grad():
-            logits = model(**inputs).logits
-            pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
-            preds.extend(pred)
+#     model.eval()
+#     preds = []
+#     for idx, sample in tqdm(dataset_valid.iterrows()):
+#         inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
+#         with torch.no_grad():
+#             logits = model(**inputs).logits
+#             pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
+#             preds.extend(pred)
     
-    dataset_valid['pred_target'] = preds
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_g2p_{num}_change.csv',index=False), index=False)
+#     dataset_valid['pred_target'] = preds
+#     dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_g2p_{num}_change.csv',index=False), index=False)
     
 
 
 def main():
     for i in range(4):
-        eval(i)
-        # train(i)
+        # eval(i)
+        train(i)
 
 if __name__ == '__main__':
     main()

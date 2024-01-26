@@ -70,7 +70,7 @@ def train():
 
     train = config.get("data","train")
     dev= config.get("data","dev")
-    dataset_train = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv')).groupby(['target','type']).sample(frac = 0.3,random_state = SEED)
+    dataset_train = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
     
     dataset_valid=pd.read_csv(f'./data/validation/{dev}.csv')
     data_train = BERTDataset(dataset_train, tokenizer)
