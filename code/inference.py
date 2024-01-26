@@ -32,7 +32,7 @@ def eval():
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
-    filename=config.get('name','name')
+    filename=config.get('model','name')
 
     BASE_DIR = os.getcwd()
     DATA_DIR = os.path.join(BASE_DIR, './data')
