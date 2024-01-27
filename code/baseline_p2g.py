@@ -54,9 +54,10 @@ def train():
     torch.cuda.manual_seed(SEED)
     torch.cuda.manual_seed_all(SEED)
     
-    filename = config.get('model','name')
+    filename = config.get('p2g','name')
     batch = int(config.get('model','batch'))
     eval_step = int(config.get('model','eval_step'))
+    train_file = config.get('p2g','train')
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
@@ -69,9 +70,9 @@ def train():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
     train = config.get("data","train")
-    data = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
-    dataset_train, dataset_valid = train_test_split(data, test_size=0.015, stratify=data['target'],random_state=SEED)
-
+    data = pd.read_csv(os.path.join(DATA_DIR, f'{train_file}.csv'))
+    dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
+    dataset_train = dataset_train.drop(dataset_train[dataset_train.target.isin([0,3,6])].groupby('target').sample(frac=0.5,random_state=42).index)
     data_train = BERTDataset(dataset_train, tokenizer)
     data_valid = BERTDataset(dataset_valid, tokenizer)
 
@@ -111,7 +112,7 @@ def train():
         greater_is_better=True,
         seed=SEED,
         report_to="wandb",
-        run_name=filename+'_regular',
+        run_name=filename,
     )
 
     trainer = Trainer(
@@ -124,7 +125,7 @@ def train():
     )
 
     trainer.train()
-    model.save_pretrained(f'./best_model/{filename}_regular')
+    model.save_pretrained(f'./best_model/p2g_{filename}')
 
 
 
