@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 import evaluate
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
-from transformers import DataCollatorWithPadding
+from transformers import DataCollatorWithPadding, AutoConfig
 from transformers import TrainingArguments, Trainer
 
 from sklearn.model_selection import train_test_split
@@ -59,6 +59,7 @@ def train():
     eval_step = int(config.get('othermodel','eval_step'))
     epoch = int(config.get('othermodel','epoch'))
     train_file = config.get('othermodel','train')
+    model_name = config.get('othermodel','model_name')
     
     
 
@@ -68,10 +69,11 @@ def train():
     DATA_DIR = os.path.join(BASE_DIR, './data')
     OUTPUT_DIR = os.path.join(BASE_DIR, './output')
     
-
-    model_name = 'snunlp/KR-ELECTRA-discriminator'
-    model = AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=7).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    model_config = AutoConfig.from_pretrained(model_name)
+    model_config.num_labels = 7
+    model = AutoModelForSequenceClassification.from_pretrained(model_name, config = model_config).to(DEVICE)
 
     train = config.get("data","train")
     data = pd.read_csv(os.path.join(DATA_DIR, f'{train_file}.csv'))
@@ -101,9 +103,9 @@ def train():
         logging_strategy='steps',
         evaluation_strategy='steps',
         save_strategy='steps',
-        logging_steps=100,
+        logging_steps=eval_step,
         eval_steps=eval_step,
-        save_steps=100,
+        save_steps=eval_step,
         save_total_limit=2,
         learning_rate= 2e-05,
         adam_beta1 = 0.9,
