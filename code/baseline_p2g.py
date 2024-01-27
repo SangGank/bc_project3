@@ -75,7 +75,7 @@ def train():
     # dataset_train = dataset_train.drop(dataset_train[dataset_train.target.isin([0,6])].groupby('target').sample(frac=0.3,random_state=42).index)
     jap = pd.read_csv('./data/back_translate_jap.csv').drop(dataset_valid.index)
     eng = pd.read_csv('./data/back_translate_eng.csv').drop(dataset_valid.index)
-    dataset_train= pd.concat([dataset_train,jap,eng],ignore_index=True)
+    dataset_train= pd.concat([dataset_train,jap,eng],ignore_index=True).sample(frac=1, random_state=SEED)
     data_train = BERTDataset(dataset_train, tokenizer)
     data_valid = BERTDataset(dataset_valid, tokenizer)
 
