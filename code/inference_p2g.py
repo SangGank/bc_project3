@@ -45,7 +45,7 @@ def eval():
     
 
     model_name = 'klue/bert-base'
-    model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/p2g_{filename}', num_labels=7).to(DEVICE)
+    model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/{filename}', num_labels=7).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     
     train = config.get("p2g","train")
@@ -66,7 +66,7 @@ def eval():
             preds.extend(pred)
     
     dataset_valid['pred_target'] = preds
-    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_p2g_{filename}.csv'), index=False)
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{filename}.csv'), index=False)
     # dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_AI_limit.csv'), index=False)
     
     

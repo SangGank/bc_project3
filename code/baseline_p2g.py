@@ -72,7 +72,7 @@ def train():
     train = config.get("data","train")
     data = pd.read_csv(os.path.join(DATA_DIR, f'{train_file}.csv'))
     dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
-    dataset_train = dataset_train.drop(dataset_train[dataset_train.target.isin([0,3,6])].groupby('target').sample(frac=0.5,random_state=42).index)
+    dataset_train = dataset_train.drop(dataset_train[dataset_train.target.isin([0,6])].groupby('target').sample(frac=0.3,random_state=42).index)
     data_train = BERTDataset(dataset_train, tokenizer)
     data_valid = BERTDataset(dataset_valid, tokenizer)
 
@@ -125,7 +125,7 @@ def train():
     )
 
     trainer.train()
-    model.save_pretrained(f'./best_model/p2g_{filename}')
+    model.save_pretrained(f'./best_model/{filename}')
 
 
 
