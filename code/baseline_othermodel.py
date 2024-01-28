@@ -32,7 +32,7 @@ class BERTDataset(Dataset):
         self.labels = []
         
         for text, label in zip(input_texts, targets):
-            tokenized_input = tokenizer(text, padding='max_length', truncation=True, return_tensors='pt')
+            tokenized_input = tokenizer('IT/과학 : 0, 경제 : 1, 사회 : 2, 생활문화 : 3, 세계 : 4, 스포츠 : 5, 정치 : 6 중 하나를 고르세요',text, padding='max_length', truncation=True, return_tensors='pt')
             self.inputs.append(tokenized_input)
             self.labels.append(torch.tensor(label))
     
@@ -107,7 +107,7 @@ def train():
         eval_steps=eval_step,
         save_steps=eval_step,
         save_total_limit=2,
-        learning_rate= 2e-05,
+        learning_rate= 1e-05,
         adam_beta1 = 0.9,
         adam_beta2 = 0.999,
         adam_epsilon=1e-08,

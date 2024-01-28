@@ -14,6 +14,8 @@ from transformers import TrainingArguments, Trainer
 
 from sklearn.model_selection import train_test_split
 import configparser
+import torch.nn.functional as F
+
 
 
 os.environ['WANDB_PROJECT'] = 'project3'
@@ -140,38 +142,44 @@ def train(num):
     dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_Jiyoung_{num}.csv'), index=False)
     model.save_pretrained(f'./best_model/Jiyoung_{num}')
     
-# def eval(num):
+def eval(num):
     
-#     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-#     BASE_DIR = os.getcwd()
-#     DATA_DIR = os.path.join(BASE_DIR, './data')
+    BASE_DIR = os.getcwd()
+    DATA_DIR = os.path.join(BASE_DIR, './data')
    
-#     model_name = 'klue/bert-base'
+    model_name = 'klue/bert-base'
     
-#     model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/p2g_{num}', num_labels=7).to(DEVICE)
-#     tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/Jiyoung_{num}', num_labels=7).to(DEVICE)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     
-#     dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train/change_g2p.csv')).iloc[num::4]
+    dataset_valid = pd.read_csv(os.path.join(DATA_DIR, f'./train_p2g.csv')).iloc[num::4]
+
     
-#     model.eval()
-#     preds = []
-#     for idx, sample in tqdm(dataset_valid.iterrows()):
-#         inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
-#         with torch.no_grad():
-#             logits = model(**inputs).logits
-#             pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
-#             preds.extend(pred)
+    model.eval()
+    preds = []
+    probs = []
+    for idx, sample in tqdm(dataset_valid.iterrows()):
+        inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
+        with torch.no_grad():
+            logits = model(**inputs).logits
+            prob = F.softmax(logits, dim=-1).detach().cpu().numpy()
+            probs.extend(prob)
+            pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
+            
+            preds.extend(pred)
     
-#     dataset_valid['pred_target'] = preds
-#     dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_g2p_{num}_change.csv',index=False), index=False)
+    dataset_valid['pred_target'] = preds
+    dataset_valid['prob'] = probs
+    dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_Jiyoung_{num}_prob.csv'), index=False)
     
 
 
 def main():
     for i in range(4):
-        # eval(i)
-        train(i)
+        eval(i)
+        # train(i)
 
 if __name__ == '__main__':
     main()

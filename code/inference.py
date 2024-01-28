@@ -22,6 +22,13 @@ config = configparser.ConfigParser()
 config.read('./code/config.ini')
 
 
+config = configparser.ConfigParser()
+config.read('./code/config.ini')
+for section in config.sections():
+    print(f'Section: {section}')
+    for key, value in config.items(section):
+        print(f'  {key} = {value}')
+
 def eval():
     SEED = 456
     random.seed(SEED)
@@ -32,7 +39,7 @@ def eval():
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
-    filename=config.get('model','name')
+    filename=config.get('p2g','name')
 
     BASE_DIR = os.getcwd()
     DATA_DIR = os.path.join(BASE_DIR, './data')

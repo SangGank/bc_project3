@@ -18,6 +18,8 @@ from baseline_code import BERTDataset
 
 import configparser
 
+import torch.nn.functional as F
+
 
 config = configparser.ConfigParser()
 config.read('./code/config.ini')
@@ -63,16 +65,20 @@ def eval():
 
     model.eval()
     preds = []
+    probs = []
     for idx, sample in tqdm(dataset_valid.iterrows()):
         inputs = tokenizer(sample['text'], return_tensors="pt").to(DEVICE)
         with torch.no_grad():
             logits = model(**inputs).logits
+            prob = F.softmax(logits, dim=-1).detach().cpu().numpy()
+            probs.extend(prob)
             pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
+            
             preds.extend(pred)
     
     dataset_valid['pred_target'] = preds
+    dataset_valid['prob'] = probs
     dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_{filename}.csv'), index=False)
-    # dataset_valid.to_csv(os.path.join(BASE_DIR, f'dev/dev_AI_limit.csv'), index=False)
     
     
     
