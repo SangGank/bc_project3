@@ -39,7 +39,7 @@ def eval():
 
     DEVICE = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     
-    filename=config.get('p2g','name')
+    filename=config.get('model','name')
 
     BASE_DIR = os.getcwd()
     DATA_DIR = os.path.join(BASE_DIR, './data')
@@ -49,6 +49,7 @@ def eval():
     model = AutoModelForSequenceClassification.from_pretrained(f'./best_model/{filename}', num_labels=7).to(DEVICE)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+    print(BASE_DIR)
     dataset_test = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'))
     model.eval()
     preds = []
@@ -58,7 +59,6 @@ def eval():
             logits = model(**inputs).logits
             pred = torch.argmax(torch.nn.Softmax(dim=1)(logits), dim=1).cpu().numpy()
             preds.extend(pred)
-    
     dataset_test['target'] = preds
     dataset_test.to_csv(os.path.join(BASE_DIR, f'output_{filename}.csv'), index=False)
     

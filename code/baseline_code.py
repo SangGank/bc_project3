@@ -70,7 +70,9 @@ def train():
 
     train = config.get("data","train")
     data = pd.read_csv(os.path.join(DATA_DIR, f'{train}.csv'))
-    dataset_train, dataset_valid = train_test_split(data, test_size=0.015, stratify=data['target'],random_state=SEED)
+    # dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data['target'],random_state=SEED)
+    dataset_train, dataset_valid = train_test_split(data, test_size=0.3, stratify=data[['target','type']],random_state=SEED)
+    
 
     data_train = BERTDataset(dataset_train, tokenizer)
     data_valid = BERTDataset(dataset_valid, tokenizer)

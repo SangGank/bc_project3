@@ -96,7 +96,7 @@ def train():
         save_strategy='steps',
         logging_steps=100,
         eval_steps=eval_step,
-        save_steps=100,
+        save_steps=eval_step,
         save_total_limit=2,
         learning_rate= 2e-05,
         adam_beta1 = 0.9,
